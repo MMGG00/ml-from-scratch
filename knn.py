@@ -20,3 +20,13 @@ def predict(new_point: tuple, examples: list, k: int) -> str:
     nearest = k_nearest(new_point, examples, k)
     labels = [example[1] for example in nearest]
     return Counter(labels).most_common(1)[0][0]
+
+def accuracy(train_examples: list, test_examples: list, k: int) -> float:
+    # How often does predict get the right label on examples it hasn't seen?
+    correct = 0
+    for point, true_label in test_examples:
+        guess = predict(point, train_examples, k)
+        if guess == true_label:
+            correct += 1
+    return correct / len(test_examples)
+
