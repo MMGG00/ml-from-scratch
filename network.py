@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     random.seed(1)
     layers = make_network(input_size=1, hidden_size=2)
-    train(data, layers)
+    train_fast(data, layers)
 
     for hours in range(2, 15):
         chance = forward([hours / 10], layers)[0]
