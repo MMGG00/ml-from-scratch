@@ -1,12 +1,13 @@
 import time
 import numpy as np
-from tasks import digits
 from models.knn import KNN
 from models.neural_net import NeuralNet
+from tasks import digits, sentiment
 
 # Every task: (name, its load function). Note: digits.load with no (), we hand over the function itself.
 TASKS = [
-    ("Guess Digits ", digits.load),
+    ("Guess Digits", digits.load),
+    ("Sentiment", sentiment.load),
 ]
 
 
