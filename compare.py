@@ -6,7 +6,7 @@ from models.neural_net import NeuralNet
 
 # Every task: (name, its load function). Note: digits.load with no (), we hand over the function itself.
 TASKS = [
-    ("Guess Digits", digits.load),
+    ("Guess Digits ", digits.load),
 ]
 
 
@@ -21,7 +21,7 @@ def make_models() -> list:
 
 
 if __name__ == "__main__":
-    print(f"{'task':<10}{'model':<14}{'accuracy':<10}{'train s':<10}{'guess s':<10}")
+    print(f"{'task':<16}{'model':<14}{'accuracy':<10}{'train s':<10}{'guess s':<10}")
     for task_name, load in TASKS:
         train_x, train_y, test_x, test_y = load()            # same data for every model
 
@@ -35,4 +35,4 @@ if __name__ == "__main__":
             guess_seconds = time.time() - start
 
             accuracy = float(np.mean(guesses == test_y))     # fraction right
-            print(f"{task_name:<10}{model_name:<14}{accuracy:<10.3f}{train_seconds:<10.2f}{guess_seconds:<10.2f}")
+            print(f"{task_name:<16}{model_name:<14}{accuracy:<10.3f}{train_seconds:<10.2f}{guess_seconds:<10.2f}")

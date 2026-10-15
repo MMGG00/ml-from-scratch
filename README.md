@@ -18,20 +18,20 @@ Say you describe fruit with three ratings from 1 to 10: sweetness, crunchiness, 
 ## Example
 
 ```python
-from knn import predict, accuracy
+from learning.knn import predict, accuracy
 
 fruit = [
-    ((7, 9, 9), "apple"),    # (sweetness, crunchiness, roundness), label
+    ((7, 9, 9), "apple"),  # (sweetness, crunchiness, roundness), label
     ((8, 8, 9), "apple"),
     ((9, 2, 2), "banana"),
     ((8, 3, 1), "banana"),
 ]
 
-print(predict((7, 8, 8), fruit, 3))   # apple
-print(predict((9, 3, 2), fruit, 3))   # banana
+print(predict((7, 8, 8), fruit, 3))  # apple
+print(predict((9, 3, 2), fruit, 3))  # banana
 
 test = [((7, 8, 8), "apple"), ((9, 3, 2), "banana"), ((8, 8, 8), "banana")]
-print(accuracy(fruit, test, 3))       # 0.666..., the last one is mislabeled on purpose
+print(accuracy(fruit, test, 3))  # 0.666..., the last one is mislabeled on purpose
 ```
 
 ## Run the tests
