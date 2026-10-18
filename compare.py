@@ -2,12 +2,14 @@ import time
 import numpy as np
 from models.knn import KNN
 from models.neural_net import NeuralNet
+from models.logistic import LogisticRegression
 from tasks import digits, sentiment
 
 # Every task: (name, its load function). Note: digits.load with no (), we hand over the function itself.
 TASKS = [
     ("Guess Digits", digits.load),
     ("Sentiment", sentiment.load),
+
 ]
 
 
@@ -18,6 +20,7 @@ def make_models() -> list:
         ("kNN k=3", KNN(k=3)),
         ("kNN k=5", KNN(k=5)),
         ("neural net", NeuralNet()),
+        ("logistic", LogisticRegression()),
     ]
 
 

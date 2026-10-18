@@ -34,7 +34,7 @@ def load(vocab_size: int = 2000) -> tuple:
     train_reviews, test_reviews = reviews[:1500], reviews[1500:]
 
     # Vocabulary: the words found in the most TRAINING reviews. The test reviews stay unseen.
-    counts = Counter(word for words, _ in train_reviews for word in set(words))
+    counts = Counter(word for words, _ in train_reviews for word in sorted(set(words)))
     vocab = [word for word, _ in counts.most_common(vocab_size)]       # ["the", "to", "of", ...]
     position = {word: i for i, word in enumerate(vocab)}               # {"the": 0, "to": 1, ...}
 
