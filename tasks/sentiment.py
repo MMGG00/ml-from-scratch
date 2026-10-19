@@ -1,23 +1,12 @@
 import random
-from collections import Counter
 
 import nltk
 import numpy as np
 from nltk.corpus import movie_reviews
 
+from tasks.text import make_vocab, to_numbers
+
 LABELS = ["negative", "positive"]   # position = the number the models see: negative = 0, positive = 1
-
-
-def to_numbers(reviews: list, position: dict) -> tuple:
-    # One row per review, one column per vocabulary word.
-    # A cell is 1 if that word appears in that review, else 0.
-    x = np.zeros((len(reviews), len(position)))           # (reviews, vocab words)  [1500 x 2000]
-    for row, (words, _) in enumerate(reviews):
-        for word in words:
-            if word in position:                          # skip words not in the vocabulary
-                x[row, position[word]] = 1
-    y = np.array([label for _, label in reviews])         # one 0 or 1 per review
-    return x, y
 
 
 def load(vocab_size: int = 2000) -> tuple:
@@ -33,11 +22,12 @@ def load(vocab_size: int = 2000) -> tuple:
     random.shuffle(reviews)
     train_reviews, test_reviews = reviews[:1500], reviews[1500:]
 
-    # Vocabulary: the words found in the most TRAINING reviews. The test reviews stay unseen.
-    counts = Counter(word for words, _ in train_reviews for word in sorted(set(words)))
-    vocab = [word for word, _ in counts.most_common(vocab_size)]       # ["the", "to", "of", ...]
-    position = {word: i for i, word in enumerate(vocab)}               # {"the": 0, "to": 1, ...}
+    train_words = [words for words, _ in train_reviews]   # just the word lists
+    test_words = [words for words, _ in test_reviews]
+    position = make_vocab(train_words, vocab_size)        # vocabulary from TRAINING reviews only
 
-    train_x, train_y = to_numbers(train_reviews, position)
-    test_x, test_y = to_numbers(test_reviews, position)
+    train_x = to_numbers(train_words, position)           # (1500, 2000)
+    test_x = to_numbers(test_words, position)             # (500, 2000)
+    train_y = np.array([label for _, label in train_reviews])
+    test_y = np.array([label for _, label in test_reviews])
     return train_x, train_y, test_x, test_y
