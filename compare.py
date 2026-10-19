@@ -4,6 +4,7 @@ from models.knn import KNN
 from models.neural_net import NeuralNet
 from models.logistic import LogisticRegression
 from tasks import digits, sentiment
+from models.ensemble import Ensemble
 
 # Every task: (name, its load function). Note: digits.load with no (), we hand over the function itself.
 TASKS = [
@@ -23,6 +24,7 @@ def make_models(seed: int) -> list:
         ("kNN k=5", KNN(k=5)),
         ("neural net", NeuralNet(seed=seed)),
         ("logistic", LogisticRegression()),
+        ("ensemble x3", Ensemble([NeuralNet(seed=seed * 3 + k) for k in range(3)], seed=seed)),
     ]
 
 
