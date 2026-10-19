@@ -96,6 +96,9 @@ class NeuralNet:
         # 5. Go back to the best knobs we saw, not whatever the last step left behind.
         self.hidden_weights, self.hidden_biases, self.output_weights, self.output_biases = best_knobs
 
+    def predict_chances(self, test_x: np.ndarray) -> np.ndarray:
+        _, chances = self.forward(test_x)                  # (rows, classes)  [297 x 10], each row adds to 1
+        return chances
+
     def predict(self, test_x: np.ndarray) -> np.ndarray:
-        _, chances = self.forward(test_x)                  # (rows, classes)  [297 x 10]
-        return chances.argmax(axis=1)                      # one guess per row  [297]
+        return self.predict_chances(test_x).argmax(axis=1)  # one guess per row  [297]                 # one guess per row  [297]

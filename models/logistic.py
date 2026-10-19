@@ -69,6 +69,9 @@ class LogisticRegression:
         # 5. Go back to the best knobs.
         self.weights, self.biases = best_knobs
 
-    def predict(self, test_x: np.ndarray) -> np.ndarray:
+    def predict_chances(self, test_x: np.ndarray) -> np.ndarray:
         scores = test_x @ self.weights + self.biases        # (rows, classes)
-        return softmax(scores).argmax(axis=1)               # one guess per row
+        return softmax(scores)                              # each row adds to 1
+
+    def predict(self, test_x: np.ndarray) -> np.ndarray:
+        return self.predict_chances(test_x).argmax(axis=1)  # one guess per row           # one guess per row
