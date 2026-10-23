@@ -13,6 +13,11 @@ URL = "https://raw.githubusercontent.com/AFAgarap/ecommerce-reviews-analysis/mas
 FILE = os.path.join("data", "clothing_reviews.csv")     # where we keep our downloaded copy
 
 
+# Model knobs this task wants changed from their defaults:  {model kind: {knob name: value}}.
+# Empty means every model uses its normal defaults.
+SETTINGS = {}
+
+
 def load(vocab_size: int = 2000) -> tuple:
     if not os.path.exists(FILE):                         # download once; after that, read the saved copy
         os.makedirs("data", exist_ok=True)

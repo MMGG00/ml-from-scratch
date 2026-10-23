@@ -2,6 +2,11 @@ import random
 from sklearn.datasets import load_digits
 
 
+# Model knobs this task wants changed from their defaults:  {model kind: {knob name: value}}.
+# Empty means every model uses its normal defaults.
+SETTINGS = {}
+
+
 def load():
     digits = load_digits()
     all_pixels = digits.data / 16

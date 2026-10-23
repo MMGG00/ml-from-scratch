@@ -9,6 +9,11 @@ from tasks.text import make_vocab, to_numbers
 LABELS = ["negative", "positive"]   # position = the number the models see: negative = 0, positive = 1
 
 
+# Model knobs this task wants changed from their defaults:  {model kind: {knob name: value}}.
+# Empty means every model uses its normal defaults.
+SETTINGS = {}
+
+
 def load(vocab_size: int = 2000) -> tuple:
     nltk.download("movie_reviews", quiet=True)            # downloads once, then it's saved on your PC
 
