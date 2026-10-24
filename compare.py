@@ -1,5 +1,8 @@
+import csv                      # reads and writes .csv files (rows split by commas)
+import os                       # file tools; here, checking whether a file already exists
 import sys                      # lets us read the words typed after "python compare.py"
 import time                     # stopwatch: time.time() = seconds since 1970, so (end - start) = seconds taken
+from datetime import datetime   # today's date and time, to stamp each run
 import numpy as np
 from models.knn import KNN
 from models.neural_net import NeuralNet
@@ -22,6 +25,21 @@ TASKS = [
 ]
 
 SEEDS = [0, 1, 2]   # list[int]: random starts to try, for models that use randomness
+
+# Every printed row also gets saved here, so past results never get lost.
+# Column names are lowercase with no spaces, the way databases like them (for the Postgres step later).
+RESULTS_FILE = "results.csv"
+COLUMNS = ["run_time", "task", "model", "avg_acc", "spread", "runs", "train_s", "guess_s"]
+
+
+def save_row(row: dict) -> None:
+    # Adds one row to the end of results.csv.  row: dict, column name -> value  [{"task": "digits", "avg_acc": 0.97, ...}]
+    is_new = not os.path.exists(RESULTS_FILE)              # bool: True the very first time, when the file doesn't exist yet
+    with open(RESULTS_FILE, "a", newline="") as f:         # "a" = append: add to the end, never erase what's there
+        writer = csv.DictWriter(f, fieldnames=COLUMNS)     # writes dicts as rows, in COLUMNS order
+        if is_new:
+            writer.writeheader()                           # first time only: the line of column names
+        writer.writerow(row)                               # the row itself:  2026-10-23 14:05:09,digits,logistic,0.97,...
 
 
 def make_models(seed: int, settings: dict) -> list:
@@ -49,6 +67,7 @@ if __name__ == "__main__":     # only runs when you start this file directly, no
     # sys.argv = list[str] of everything typed:  "python compare.py stars"  ->  ["compare.py", "stars"]
     # [1:] drops the file name, leaving the task names:  ["stars"]   (typed nothing extra -> [])
     chosen = sys.argv[1:]
+    run_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")   # str: when this run started  ["2026-10-23 14:05:09"]; every row of this run shares it
 
     # Header row. :<12 means "left-align in a space 12 characters wide" so the columns line up.
     print(f"{'task':<12}{'model':<14}{'avg acc':<10}{'spread':<10}{'runs':<6}{'train s':<10}{'guess s':<10}")
@@ -93,3 +112,15 @@ if __name__ == "__main__":     # only runs when you start this file directly, no
             # Times are the AVERAGE for one run, not the total.
             print(f"{task_name:<12}{model_name:<14}{np.mean(scores):<10.3f}{spread:<10.3f}{len(scores):<6}"
                   f"{np.mean(train_times):<10.2f}{np.mean(guess_times):<10.2f}")
+            save_row({                                     # the same numbers as the printed line, rounded the same way
+                "run_time": run_time,
+                "task": task_name,
+                "model": model_name,
+                "avg_acc": round(float(np.mean(scores)), 3),
+                "spread": round(spread, 3),
+                "runs": len(scores),
+                "train_s": round(float(np.mean(train_times)), 2),
+                "guess_s": round(float(np.mean(guess_times)), 2),
+            })
+
+    print(f"saved to {RESULTS_FILE}")
