@@ -63,10 +63,32 @@ def make_models(seed: int, settings: dict) -> list:
     ]
 
 
+def picked(model_name: str, chosen_models: list) -> bool:
+    # Should this model run?  True if you didn't type any model words (then every model runs),
+    # or if one of your words is inside the model's name, ignoring capitals.
+    #   chosen_models ["knn"]  ->  "kNN k=1" yes, "kNN k=5" yes, "logistic" no
+    if not chosen_models:
+        return True
+    for word in chosen_models:
+        if word in model_name.lower():     # "knn" in "knn k=1" -> True
+            return True
+    return False
+
+
 if __name__ == "__main__":     # only runs when you start this file directly, not when another file imports it
-    # sys.argv = list[str] of everything typed:  "python compare.py stars"  ->  ["compare.py", "stars"]
-    # [1:] drops the file name, leaving the task names:  ["stars"]   (typed nothing extra -> [])
-    chosen = sys.argv[1:]
+    # sys.argv = list[str] of everything typed:  "python compare.py fashion logistic"  ->  ["compare.py", "fashion", "logistic"]
+    # [1:] drops the file name. Each word is either a task name or part of a model name.
+    words = [word.lower() for word in sys.argv[1:]]                # list[str]  ["fashion", "logistic"]
+    task_names = [name for name, _, _ in TASKS]                    # ["digits", "sentiment", ..., "fashion"]
+    chosen_tasks = [word for word in words if word in task_names]          # ["fashion"]   (none typed -> [] -> run all)
+    chosen_models = [word for word in words if word not in task_names]     # ["logistic"]  (none typed -> [] -> run all)
+
+    # Catch typos before any slow work: every model word must match at least one model.
+    model_names = [name for name, _ in make_models(0, {})]         # ["most common", "kNN k=1", ..., "ensemble x3"]
+    for word in chosen_models:
+        if not any(picked(name, [word]) for name in model_names):  # any(...) = True if at least one model matches
+            print(f"'{word}' isn't a task and doesn't match any model. Tasks: {task_names}. Models: {model_names}")
+            sys.exit(1)                                            # stop the program right here
     run_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")   # str: when this run started  ["2026-10-23 14:05:09"]; every row of this run shares it
 
     # Header row. :<12 means "left-align in a space 12 characters wide" so the columns line up.
@@ -75,7 +97,7 @@ if __name__ == "__main__":     # only runs when you start this file directly, no
     for task_name, load, settings in TASKS:        # task_name: str ["fashion"], load: function [fashion.load], settings: dict
         # Skip this task if you named tasks and this isn't one of them. An empty list counts as False,
         # so typing no names means nothing gets skipped.
-        if chosen and task_name not in chosen:
+        if chosen_tasks and task_name not in chosen_tasks:
             continue                               # jump to the next task in TASKS
 
         train_x, train_y, test_x, test_y = load()  # same data for every model  [stars: (6000, 2000), (6000,), (2000, 2000), (2000,)]
@@ -83,6 +105,8 @@ if __name__ == "__main__":     # only runs when you start this file directly, no
         # enumerate gives (position, item):  i = 0, 1, 2 ...   model_name = "kNN k=1", ...
         # make_models(0, settings) is only used here to get the names; _ means "ignore this part" (the model object).
         for i, (model_name, _) in enumerate(make_models(0, settings)):
+            if not picked(model_name, chosen_models):  # you picked models, and this isn't one of them
+                continue
             scores = []          # list[float]: accuracy of each run   [digits neural net: 0.963, 0.966, 0.963]
             train_times = []     # list[float]: seconds fit took, each run
             guess_times = []     # list[float]: seconds predict took, each run
