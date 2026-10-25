@@ -9,6 +9,7 @@ from models.neural_net import NeuralNet
 from models.logistic import LogisticRegression
 from models.ensemble import Ensemble
 from models.baseline import MostCommon
+from models.cnn import CNN
 from tasks import digits, sentiment, headlines, stars, fashion
 
 # Every task: (name, load function, settings).
@@ -51,7 +52,7 @@ def make_models(seed: int, settings: dict) -> list:
     logistic_knobs = settings.get("logistic", {})    # dict  [fashion: {"learning_rate": 0.1}]
     # ** unpacks a dict into named inputs:  LogisticRegression(**{"learning_rate": 0.1})
     #   is the same as  LogisticRegression(learning_rate=0.1).   **{} adds nothing.
-    return [
+    models = [
         ("most common", MostCommon()),   # dummy: always guesses the most common training answer; every model should beat it
         ("kNN k=1", KNN(k=1)),
         ("kNN k=3", KNN(k=3)),
@@ -61,6 +62,10 @@ def make_models(seed: int, settings: dict) -> list:
         # 3 neural nets answering as a team, using the same net knobs. It runs once (no seed), with nets 0, 1, 2.
         ("ensemble x3", Ensemble([NeuralNet(seed=seed * 3 + k, **net_knobs) for k in range(3)])),
     ]
+    # The CNN only works on square photos, so only tasks that give it a "cnn" setting (their photo size) get one.
+    if "cnn" in settings:
+        models.append(("cnn", CNN(seed=seed, **settings["cnn"])))
+    return models
 
 
 def picked(model_name: str, chosen_models: list) -> bool:
@@ -84,7 +89,11 @@ if __name__ == "__main__":     # only runs when you start this file directly, no
     chosen_models = [word for word in words if word not in task_names]     # ["logistic"]  (none typed -> [] -> run all)
 
     # Catch typos before any slow work: every model word must match at least one model.
-    model_names = [name for name, _ in make_models(0, {})]         # ["most common", "kNN k=1", ..., "ensemble x3"]
+    model_names = []                                               # every model name any task uses
+    for _, _, task_settings in TASKS:
+        for name, _ in make_models(0, task_settings):
+            if name not in model_names:
+                model_names.append(name)
     for word in chosen_models:
         if not any(picked(name, [word]) for name in model_names):  # any(...) = True if at least one model matches
             print(f"'{word}' isn't a task and doesn't match any model. Tasks: {task_names}. Models: {model_names}")
