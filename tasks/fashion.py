@@ -30,7 +30,7 @@ def read_labels(path: str) -> np.ndarray:
 # Model knobs this task wants changed from their defaults:  {model kind: {knob name: value}}.
 # logistic: learning rate 0.1 instead of 1.0. Each photo has hundreds of non-zero pixels, so the slopes are big,
 # and 1.0 made training bounce up and down. Tested: 0.1 climbs smoothly and scores 0.829 (1.0 scored 0.797 to 0.827).
-SETTINGS = {"logistic": {"learning_rate": 0.1}}
+SETTINGS = {"logistic": {"learning_rate": 0.1}, "cnn": {"side": 28}}
 
 
 def load(train_size: int = 6000, test_size: int = 2000) -> tuple:

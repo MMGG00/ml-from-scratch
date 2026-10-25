@@ -4,7 +4,7 @@ from sklearn.datasets import load_digits
 
 # Model knobs this task wants changed from their defaults:  {model kind: {knob name: value}}.
 # Empty means every model uses its normal defaults.
-SETTINGS = {}
+SETTINGS = {"cnn": {"side": 8}}
 
 
 def load():
