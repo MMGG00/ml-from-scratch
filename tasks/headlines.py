@@ -15,10 +15,8 @@ FILE = os.path.join("data", "ag_news.csv")            # where we keep our downlo
 
 
 # Model knobs this task wants changed from their defaults:  {model kind: {knob name: value}}.
-# logistic: learning rate 10 instead of 1.0. A headline has only about 5 words, so the slopes are tiny,
-# and 1.0 barely moves the knobs. Tested: 10 scores 0.734 (1.0 scored 0.718) and trains about twice as fast.
-SETTINGS = {"logistic": {"learning_rate": 10.0}}
-
+# Empty means every model uses its normal defaults.
+SETTINGS = {}
 
 def load(vocab_size: int = 2000) -> tuple:
     if not os.path.exists(FILE):                       # download once; after that, read the saved copy

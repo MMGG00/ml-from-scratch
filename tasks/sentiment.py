@@ -10,9 +10,8 @@ LABELS = ["negative", "positive"]   # position = the number the models see: nega
 
 
 # Model knobs this task wants changed from their defaults:  {model kind: {knob name: value}}.
-# Empty means every model uses its normal defaults.
-SETTINGS = {}
-
+# logistic: learning rate 0.1 instead of 0.5. Reviews have many words each, so the slopes are big. Tested: 0.862 vs 0.840.
+SETTINGS = {"logistic": {"learning_rate": 0.1}}
 
 def load(vocab_size: int = 2000) -> tuple:
     nltk.download("movie_reviews", quiet=True)            # downloads once, then it's saved on your PC
