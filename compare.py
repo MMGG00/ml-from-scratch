@@ -10,6 +10,7 @@ from models.logistic import LogisticRegression
 from models.ensemble import Ensemble
 from models.baseline import MostCommon
 from models.cnn import CNN
+from models.torch_net import TorchNet
 from tasks import digits, sentiment, headlines, stars, fashion
 
 # Every task: (name, load function, settings).
@@ -58,6 +59,7 @@ def make_models(seed: int, settings: dict) -> list:
         ("kNN k=3", KNN(k=3)),
         ("kNN k=5", KNN(k=5)),
         ("neural net", NeuralNet(seed=seed, **net_knobs)),
+        ("torch net", TorchNet(seed=seed, **net_knobs)),  # same knobs as neural net, so it's a fair match
         ("logistic", LogisticRegression(**logistic_knobs)),
         # 3 neural nets answering as a team, using the same net knobs. It runs once (no seed), with nets 0, 1, 2.
         ("ensemble x3", Ensemble([NeuralNet(seed=seed * 3 + k, **net_knobs) for k in range(3)])),
