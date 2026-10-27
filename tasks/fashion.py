@@ -31,7 +31,7 @@ def read_labels(path: str) -> np.ndarray:
 # logistic: learning rate 0.1 instead of 0.5. Each photo has hundreds of non-zero pixels, so the slopes are big.
 # Tested: 0.826 vs 0.812.
 # cnn: the photos are 28 x 28.
-SETTINGS = {"logistic": {"learning_rate": 0.1}, "cnn": {"side": 28}}
+SETTINGS = {"logistic": {"learning_rate": 0.1}, "cnn": {"side": 28, "filters": 32}}
 
 def load(train_size: int = 6000, test_size: int = 2000) -> tuple:
     os.makedirs(FOLDER, exist_ok=True)

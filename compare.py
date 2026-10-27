@@ -11,6 +11,7 @@ from models.ensemble import Ensemble
 from models.baseline import MostCommon
 from models.cnn import CNN
 from models.torch_net import TorchNet
+from models.torch_cnn import TorchCNN
 from tasks import digits, sentiment, headlines, stars, fashion
 
 # Every task: (name, load function, settings).
@@ -31,7 +32,7 @@ SEEDS = [0, 1, 2]   # list[int]: random starts to try, for models that use rando
 # Every printed row also gets saved here, so past results never get lost.
 # Column names are lowercase with no spaces, the way databases like them (for the Postgres step later).
 RESULTS_FILE = "results.csv"
-COLUMNS = ["run_time", "task", "model", "avg_acc", "spread", "runs", "train_s", "guess_s"]
+COLUMNS = ["run_time", "task", "model", "device", "avg_acc", "spread", "runs", "train_s", "guess_s"]
 
 
 def save_row(row: dict) -> None:
@@ -67,6 +68,7 @@ def make_models(seed: int, settings: dict) -> list:
     # The CNN only works on square photos, so only tasks that give it a "cnn" setting (their photo size) get one.
     if "cnn" in settings:
         models.append(("cnn", CNN(seed=seed, **settings["cnn"])))
+        models.append(("torch cnn", TorchCNN(seed=seed, **settings["cnn"])))
     return models
 
 
@@ -103,7 +105,7 @@ if __name__ == "__main__":     # only runs when you start this file directly, no
     run_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")   # str: when this run started  ["2026-10-23 14:05:09"]; every row of this run shares it
 
     # Header row. :<12 means "left-align in a space 12 characters wide" so the columns line up.
-    print(f"{'task':<12}{'model':<14}{'avg acc':<10}{'spread':<10}{'runs':<6}{'train s':<10}{'guess s':<10}")
+    print(f"{'task':<12}{'model':<14}{'device':<8}{'avg acc':<10}{'spread':<10}{'runs':<6}{'train s':<10}{'guess s':<10}")
 
     for task_name, load, settings in TASKS:        # task_name: str ["fashion"], load: function [fashion.load], settings: dict
         # Skip this task if you named tasks and this isn't one of them. An empty list counts as False,
@@ -143,14 +145,18 @@ if __name__ == "__main__":     # only runs when you start this file directly, no
                 if not hasattr(model, "seed"):
                     break
 
+            # Where the model ran. getattr(model, "device", "cpu") means: the model's device if it has one,
+            # otherwise "cpu". Only the torch models have one; every NumPy model runs on the CPU.
+            device = getattr(model, "device", "cpu")
             spread = max(scores) - min(scores)     # best run minus worst run: how much luck matters  [0.966 - 0.963 = 0.003]
             # Times are the AVERAGE for one run, not the total.
-            print(f"{task_name:<12}{model_name:<14}{np.mean(scores):<10.3f}{spread:<10.3f}{len(scores):<6}"
+            print(f"{task_name:<12}{model_name:<14}{device:<8}{np.mean(scores):<10.3f}{spread:<10.3f}{len(scores):<6}"
                   f"{np.mean(train_times):<10.2f}{np.mean(guess_times):<10.2f}")
             save_row({                                     # the same numbers as the printed line, rounded the same way
                 "run_time": run_time,
                 "task": task_name,
                 "model": model_name,
+                "device": device,
                 "avg_acc": round(float(np.mean(scores)), 3),
                 "spread": round(spread, 3),
                 "runs": len(scores),

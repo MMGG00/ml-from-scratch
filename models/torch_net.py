@@ -20,6 +20,7 @@ class TorchNet:
         self.patience = patience
         self.check_fraction = check_fraction
         self.seed = seed
+        self.device = DEVICE  # "cuda" or "cpu", so compare.py can show where it ran
         self.model = None  # built in fit, once we know how many features and answers the task has
         self.history = []  # (epoch, check score) after every epoch
         self.best_epoch = 0
